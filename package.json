@@ -1,7 +1,7 @@
 {
   "name": "semantic-sf-release",
   "description": "automated semver compliant package publishing",
-  "version": "0.0.0-placeholder",
+  "version": "0.0.0-development",
   "author": "Valentin Funk <funk.valentin@gmail.com>, Stephan Bönnemann <stephan@boennemann.me> (http://boennemann.me)",
   "bin": {
     "semantic-sf-release": "bin/semantic-release.js"
@@ -44,7 +44,8 @@
     "proxyquire": "^1.7.3",
     "rimraf": "^2.5.0",
     "standard": "^9.0.0",
-    "tap": "^10.0.1"
+    "tap": "^10.0.1",
+    "semantic-release": "^6.3.2"
   },
   "engines": {
     "node": ">=0.10",
@@ -73,13 +74,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kamshak/semantic-sf-release.git"
+    "url": "https://github.com/Kamshak/semantic-sf-release.git"
   },
   "scripts": {
     "coverage": "nyc report",
     "coverage:upload": "npm run coverage -s -- --reporter=text-lcov | coveralls",
     "pretest": "standard",
-    "semantic-release": "./bin/semantic-release.js pre && npm publish && ./bin/semantic-release.js post",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "test": "npm run test:unit && npm run test:integration",
     "test:integration": "tap --no-cov test/scenarios/*.js",
     "test:unit": "nyc tap --no-cov test/specs/*.js"
