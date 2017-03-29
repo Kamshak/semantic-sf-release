@@ -2,7 +2,6 @@
 
 var fs = require('fs')
 var path = require('path')
-var url = require('url')
 
 var _ = require('lodash')
 var log = require('npmlog')
@@ -48,27 +47,13 @@ npmconf.load({}, function (err, conf) {
     process.exit(1)
   }
 
-  var npm = {
-    auth: {
-      token: env.NPM_TOKEN
-    },
-    cafile: conf.get('cafile'),
-    loglevel: conf.get('loglevel'),
-    registry: require('../src/lib/get-registry')(pkg, conf),
-    tag: (pkg.publishConfig || {}).tag || conf.get('tag') || 'latest'
-  }
-
-  // normalize trailing slash
-  npm.registry = url.format(url.parse(npm.registry))
-
-  log.level = npm.loglevel
+  log.level = conf.get('loglevel')
 
   var config = {
     env: env,
     pkg: pkg,
     options: options,
-    plugins: plugins,
-    npm: npm
+    plugins: plugins
   }
 
   var hide = {}
@@ -93,59 +78,39 @@ npmconf.load({}, function (err, conf) {
         if (!options.debug) process.exit(1)
       }
 
-      var nerfDart = require('nerf-dart')(npm.registry)
-      var wroteNpmRc = false
+      require('../src/pre')(config, function (err, release) {
+        if (err) {
+          log.error('pre', 'Failed to determine new version.')
 
-      if (env.NPM_OLD_TOKEN && env.NPM_EMAIL) {
-        // Using the old auth token format is not considered part of the public API
-        // This might go away anytime (i.e. once we have a better testing strategy)
-        conf.set('_auth', '${NPM_OLD_TOKEN}', 'project') // eslint-disable-line no-template-curly-in-string
-        conf.set('email', '${NPM_EMAIL}', 'project') // eslint-disable-line no-template-curly-in-string
-        wroteNpmRc = true
-      } else if (env.NPM_TOKEN) {
-        conf.set(nerfDart + ':_authToken', '${NPM_TOKEN}', 'project') // eslint-disable-line no-template-curly-in-string
-        wroteNpmRc = true
-      }
+          var args = ['pre', (err.code ? err.code + ' ' : '') + err.message]
+          if (err.stack) args.push(err.stack)
+          log.error.apply(log, args)
+          process.exit(1)
+        }
 
-      conf.save('project', function (err) {
-        if (err) return log.error('pre', 'Failed to save npm config.', err)
+        var message = 'Determined version ' + release.version
 
-        if (wroteNpmRc) log.verbose('pre', 'Wrote authToken to .npmrc.')
+        log.verbose('pre', message)
 
-        require('../src/pre')(config, function (err, release) {
-          if (err) {
-            log.error('pre', 'Failed to determine new version.')
+        if (options.debug) {
+          log.error('pre', message + ' Not publishing in debug mode.', release)
+          process.exit(1)
+        }
 
-            var args = ['pre', (err.code ? err.code + ' ' : '') + err.message]
-            if (err.stack) args.push(err.stack)
-            log.error.apply(log, args)
-            process.exit(1)
-          }
+        try {
+          var shrinkwrap = JSON.parse(fs.readFileSync('./npm-shrinkwrap.json'))
+          shrinkwrap.version = release.version
+          fs.writeFileSync('./npm-shrinkwrap.json', JSON.stringify(shrinkwrap, null, 2))
+          log.verbose('pre', 'Wrote version ' + release.version + 'to npm-shrinkwrap.json.')
+        } catch (e) {
+          log.silly('pre', 'Couldn\'t find npm-shrinkwrap.json.')
+        }
 
-          var message = 'Determined version ' + release.version + ' as "' + npm.tag + '".'
+        fs.writeFileSync('./package.json', JSON.stringify(_.assign(originalPkg, {
+          version: release.version
+        }), null, 2))
 
-          log.verbose('pre', message)
-
-          if (options.debug) {
-            log.error('pre', message + ' Not publishing in debug mode.', release)
-            process.exit(1)
-          }
-
-          try {
-            var shrinkwrap = JSON.parse(fs.readFileSync('./npm-shrinkwrap.json'))
-            shrinkwrap.version = release.version
-            fs.writeFileSync('./npm-shrinkwrap.json', JSON.stringify(shrinkwrap, null, 2))
-            log.verbose('pre', 'Wrote version ' + release.version + 'to npm-shrinkwrap.json.')
-          } catch (e) {
-            log.silly('pre', 'Couldn\'t find npm-shrinkwrap.json.')
-          }
-
-          fs.writeFileSync('./package.json', JSON.stringify(_.assign(originalPkg, {
-            version: release.version
-          }), null, 2))
-
-          log.verbose('pre', 'Wrote version ' + release.version + ' to package.json.')
-        })
+        log.verbose('pre', 'Wrote version ' + release.version + ' to package.json.')
       })
     })
   } else if (options.argv.remain[0] === 'post') {

@@ -60,11 +60,10 @@ test('verify pkg, options and env', function (t) {
 
     var errors = verify({env: {}, options: {}, pkg: {}})
 
-    tt.is(errors.length, 4)
+    tt.is(errors.length, 3)
     tt.is(errors[0].code, 'ENOPKGNAME')
     tt.is(errors[1].code, 'ENOPKGREPO')
     tt.is(errors[2].code, 'ENOGHTOKEN')
-    tt.is(errors[3].code, 'ENONPMTOKEN')
 
     tt.end()
   })

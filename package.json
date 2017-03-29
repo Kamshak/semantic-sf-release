@@ -81,8 +81,7 @@
     "coverage:upload": "npm run coverage -s -- --reporter=text-lcov | coveralls",
     "pretest": "standard",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "tap --no-cov test/scenarios/*.js",
+    "test": "npm run test:unit",
     "test:unit": "nyc tap --no-cov test/specs/*.js"
   }
 }

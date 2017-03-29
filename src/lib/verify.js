@@ -3,7 +3,6 @@ var SemanticReleaseError = require('@semantic-release/error')
 module.exports = function (config) {
   var pkg = config.pkg
   var options = config.options
-  var env = config.env
   var errors = []
 
   if (!pkg.name) {
@@ -26,13 +25,6 @@ module.exports = function (config) {
     errors.push(new SemanticReleaseError(
       'No github token specified.',
       'ENOGHTOKEN'
-    ))
-  }
-
-  if (!(env.NPM_TOKEN || (env.NPM_OLD_TOKEN && env.NPM_EMAIL))) {
-    errors.push(new SemanticReleaseError(
-      'No npm token specified.',
-      'ENONPMTOKEN'
     ))
   }
 
