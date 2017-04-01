@@ -150,7 +150,7 @@ npmconf.load({}, function (err, conf) {
 
         editor(filename, (err, sig) => {
           if (err) {
-              log.warn('genlog', 'Could not open an editor for previewing: ', err)
+            log.warn('genlog', 'Could not open an editor for previewing: ', err)
           }
           log.verbose('genlog', 'Editor closed with code ', sig)
         })
