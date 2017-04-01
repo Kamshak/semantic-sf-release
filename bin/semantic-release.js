@@ -17,6 +17,7 @@ normalizeData(pkg)
 var knownOptions = {
   branch: String,
   debug: Boolean,
+  'interactive': Boolean,
   'github-token': String,
   'github-url': String,
   'analyze-commits': [path, String],
@@ -115,7 +116,47 @@ npmconf.load({}, function (err, conf) {
 
       log.verbose('post', (published ? 'Published' : 'Generated') + ' release notes.', release)
     })
+  } else if (options.argv.remain[0] === 'genlog') {
+    log.verbose('genlog', 'Running generate log to file script')
+
+    require('../src/genlog')(config, function (err, changelog) {
+      if (err) {
+        log.error('genlog', 'Failed to generate release log', err)
+        process.exit(1)
+      }
+
+      log.verbose('genlog', `Generated log: ${changelog}`)
+
+      let version
+      try {
+        const packageJson = JSON.parse(fs.readFileSync('./package.json'))
+        version = packageJson.version
+      } catch (e) {
+        log.error('genlog', 'Error reading package.json', e)
+        process.exit(1)
+      }
+
+      const filename = `CHANGELOG_${version}.tmp.md`
+      if (fs.existsSync(filename)) {
+        log.error('genlog', `Changelog file ${filename} already exists!`)
+        process.exit(1)
+      }
+
+      fs.writeFileSync(filename, changelog)
+      log.info('genlog', `Changelog written to ${filename}`)
+
+      if (options.interactive || options.debug) {
+        var editor = require('editor')
+
+        editor(filename, (err, sig) => {
+          if (err) {
+              log.warn('genlog', 'Could not open an editor for previewing: ', err)
+          }
+          log.verbose('genlog', 'Editor closed with code ', sig)
+        })
+      }
+    })
   } else {
-    log.error('post', 'Command "' + options.argv.remain[0] + '" not recognized. Use either "pre" or "post"')
+    log.error('post', 'Command "' + options.argv.remain[0] + '" not recognized. Use either "pre", "post" or "genlog"')
   }
 })
