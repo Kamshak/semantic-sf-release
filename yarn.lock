@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@kamshak/release-notes-generator@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@kamshak/release-notes-generator/-/release-notes-generator-1.0.0.tgz#69565192e965811c5ddc37c3a089e9eddf2239ae"
+"@kamshak/release-notes-generator@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@kamshak/release-notes-generator/-/release-notes-generator-1.0.2.tgz#87a623d45ec689130dd51f6d86ce248a73866a0f"
   dependencies:
     conventional-changelog "^1.1.3"
     github-url-from-git "^1.4.0"
