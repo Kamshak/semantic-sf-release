@@ -4,7 +4,7 @@ var series = require('run-series')
 var exports = module.exports = function (options) {
   var plugins = {
     analyzeCommits: exports.normalize(options.analyzeCommits, '@semantic-release/commit-analyzer'),
-    generateNotes: exports.normalize(options.generateNotes, '@semantic-release/release-notes-generator'),
+    generateNotes: exports.normalize(options.generateNotes, '@kamshak/release-notes-generator'),
     getLastRelease: exports.normalize(options.getLastRelease, '@semantic-release/last-release-npm')
   }
 

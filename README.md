@@ -150,7 +150,7 @@ Have a look at the [default implementation](https://github.com/semantic-release/
 
 ### `generateNotes`
 
-This plugin is responsible for generating release notes. Call the callback with the notes as a string. Have a look at the [default implementation](https://github.com/semantic-release/release-notes-generator/).
+This plugin is responsible for generating release notes. Call the callback with the notes as a string. Have a look at the [default implementation](https://github.com/Kamshak/release-notes-generator/).
 
 ### `verifyConditions`
 
