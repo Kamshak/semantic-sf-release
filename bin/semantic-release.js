@@ -8,12 +8,14 @@ var log = require('npmlog')
 var nopt = require('nopt')
 var npmconf = require('npmconf')
 var normalizeData = require('normalize-package-data')
+require('dotenv').config()
 
-log.heading = 'semantic-release'
+log.heading = 'semantic-sf-release'
 var env = process.env
 var pkg = JSON.parse(fs.readFileSync('./package.json'))
 var originalPkg = _.cloneDeep(pkg)
 normalizeData(pkg)
+
 var knownOptions = {
   branch: String,
   debug: Boolean,
